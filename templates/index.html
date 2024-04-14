@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Chat</title>
+</head>
+<body>
+    <div id="result"></div>
+    <input type="text" id="touser" placeholder="Enter your username">
+    <input type="text" id="message" placeholder="Enter your message">
+    <button onclick="sendMessage()">Send</button>
+    <ul id="messages"></ul>
+
+    <script>
+        var username = prompt("Enter your username:");
+        var newElement = document.createElement("h1");
+        newElement.textContent = "Current username: " + username;
+
+        // Append the new element to the container
+        document.getElementById("result").appendChild(newElement);
+
+        var socket = new WebSocket("ws://localhost:8000/ws?username=" + encodeURIComponent(username));
+
+        socket.onmessage = function(event) {
+            var msg = JSON.parse(event.data);
+            var messages = document.getElementById("messages");
+            var item = document.createElement("li");
+            item.textContent = JSON.stringify(msg);
+            messages.appendChild(item);
+        };
+
+        function sendMessage() {
+            var message = document.getElementById("message").value;
+            var touser = document.getElementById("touser").value;
+            socket.send(JSON.stringify({message: message, touser: touser}));
+        }
+    </script>
+</body>
+</html>
