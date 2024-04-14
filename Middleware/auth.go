@@ -47,7 +47,6 @@ func JwtMiddleware(next http.Handler) http.Handler {
 			return signingKey, nil
 		})
 
-		fmt.Println("Inside jwt error:", err)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
@@ -58,8 +57,6 @@ func JwtMiddleware(next http.Handler) http.Handler {
 			fmt.Println("Authorized user:", claims["username"])
 			// If the token is valid, call the next handler
 			r = r.WithContext(context.WithValue(r.Context(), "username", claims["username"]))
-			username := r.Context().Value("username")
-			fmt.Println("Username:", username)
 			next.ServeHTTP(w, r)
 		} else {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)

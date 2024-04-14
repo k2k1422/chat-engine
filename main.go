@@ -3,22 +3,16 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"messaging/Channel"
 	"messaging/Controller"
 	"messaging/Database"
 	"messaging/Middleware"
 	"messaging/Model"
 	"net/http"
-	"sync"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
-)
-
-var (
-	clients      = make(map[string]*websocket.Conn) // Connected clients mapped by username
-	clientsMutex sync.Mutex                         // Mutex for thread-safe access to clients map
-	broadcast    = make(chan Model.Message)         // Broadcast channel
 )
 
 var upgrader = websocket.Upgrader{
@@ -78,9 +72,9 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 	// Read username from query parameter
 
 	// Register the WebSocket connection with the username
-	clientsMutex.Lock()
-	clients[username] = ws
-	clientsMutex.Unlock()
+	Channel.ClientsMutex.Lock()
+	Channel.Clients[username] = ws
+	Channel.ClientsMutex.Unlock()
 
 	log.Printf("User %s connected", username)
 
@@ -90,25 +84,25 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		err := ws.ReadJSON(&msg)
 		if err != nil {
 			log.Printf("error: %v", err)
-			clientsMutex.Lock()
-			delete(clients, username)
-			clientsMutex.Unlock()
+			Channel.ClientsMutex.Lock()
+			delete(Channel.Clients, username)
+			Channel.ClientsMutex.Unlock()
 			break
 		}
 		// Send the newly received message to the broadcast channel
 		msg.FromUsername = username
-		broadcast <- msg
+		Channel.Broadcast <- msg
 	}
 }
 
 func handleMessages() {
 	for {
 		// Grab the next message from the broadcast channel
-		msg := <-broadcast
+		msg := <-Channel.Broadcast
 
 		// Send it out to every client that is currently connected
-		clientsMutex.Lock()
-		toUser, isKey := clients[msg.ToUser]
+		Channel.ClientsMutex.Lock()
+		toUser, isKey := Channel.Clients[msg.ToUser]
 		if isKey {
 			err := toUser.WriteJSON(msg)
 			if err != nil {
@@ -121,10 +115,10 @@ func handleMessages() {
 		} else {
 			log.Println("user not found")
 			msg.Message = "User not found: " + msg.ToUser
-			FromUser := clients[msg.FromUsername]
+			FromUser := Channel.Clients[msg.FromUsername]
 			FromUser.WriteJSON(msg)
 		}
-		clientsMutex.Unlock()
+		Channel.ClientsMutex.Unlock()
 	}
 }
 
