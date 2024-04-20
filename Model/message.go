@@ -2,7 +2,7 @@ package Model
 
 type Message struct {
 	FromUsername string `json:"from_user"`
-	Message      string `json:"message"`
-	ToUser       string `json:"to_user"`
-	Type         string `json:"type"`
+	Message      string `json:"message" validate:"required"`
+	ToUser       string `json:"to_user" validate:"required"`
+	Type         string `json:"type" validate:"required,oneof=message typing"`
 }

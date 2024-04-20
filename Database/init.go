@@ -35,7 +35,7 @@ func init() {
 	Connection = Sql
 	DBConnection = db
 	// Auto-migrate the schema
-	err = db.AutoMigrate(&Model.User{})
+	err = db.AutoMigrate(&Model.User{}, &Model.Chat{})
 	if err != nil {
 		log.Fatalf("Error auto-migrating schema: %v", err)
 	}
