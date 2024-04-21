@@ -21,6 +21,55 @@ WebSocket Connection Manager: Manages WebSocket connections for users, facilitat
 3. Messaging Service: Facilitates communication between users through WebSocket connections, utilizing Kafka for inter-service communication.
 4. Kafka Message Broker: Serves as a centralized message broker, enabling seamless communication between microservices. Each service creates and listens to topics to efficiently transmit messages.
 
+## How to run (Standlone)
+
+### Set up enviroment
+
+1. Need Go lang installed
+2. Need python installed
+3. Install docker and docker compose
+
+Run this to export the env to local
+```
+source ./update_env.sh
+```
+
+Make the Infra Up for the service
+```
+docker-compose u -d
+```
+
+Run the go application
+```
+go run main.go
+```
+
+Create a user with username
+```
+curl --location --request GET 'http://localhost:8000/api/user/v1/create' \
+--header 'Content-Type: application/json' \
+--data '{
+    "username": "kiran"
+}'
+```
+
+Create a jwt token from python
+```
+python3 jwt.py kiran
+```
+
+output
+```
+JWT Token: eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VybmFtZSI6ICJzYW0iLCAiZXhwIjogMTcxMzc1OTk2NX0.shOgOIpgFFqcxrwDLrzho_zLPtqffY1lQS7Up_mP-4w
+```
+
+### In post man create a webscoket connection 
+
+#### Add token to the request
+![Alt text](image/image2.png)
+
+#### Create a api call
+![Alt text](image/image1.png)
 
 The architecture ensures that the Chat Engine is robust, scalable, and capable of handling large volumes of concurrent users while maintaining security and performance.
 

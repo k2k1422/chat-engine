@@ -1,0 +1,26 @@
+# Use the official Go image as the base image
+FROM golang:1.17 AS builder
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the Go source code into the container
+COPY . .
+
+# Build the Go application
+RUN go build -o app .
+
+# Use a minimal base image to keep the container size small
+FROM alpine:latest
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the built binary from the builder stage
+COPY --from=builder /app/app .
+
+# Expose the port the app runs on
+EXPOSE 8080
+
+# Command to run the executable
+CMD ["./app"]

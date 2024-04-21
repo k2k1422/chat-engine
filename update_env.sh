@@ -1,3 +1,5 @@
 set -a
-source .env
+DEFAULT_FILENAME=".env"
+FILENAME="${1:-$DEFAULT_FILENAME}"
+source $FILENAME
 set +a

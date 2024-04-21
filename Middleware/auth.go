@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-var signingKey = []byte("f1152577d55a836ea26843b0433059ed9ba1add93e0e49767890c2c46852b8d8")
+var signingKey = []byte(os.Getenv("SECRET_CODE"))
 
 // func generateJWT(username string, secretKey []byte) (string, error) {
 // 	// Create a new token
