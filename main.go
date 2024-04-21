@@ -36,8 +36,9 @@ func main() {
 	serverMux.Handle("/ws", Middleware.JwtMiddleware(http.HandlerFunc((Controller.HandleConnections))))
 
 	// Start listening for incoming chat messages
-	go Message.HandleMessages1()
+	go Message.HandleUnicastProducerMessage()
 	go Message.HandleUnicastConsumerMessage()
+	go Message.DeleteKeyCacheIfNotConnected()
 
 	// Start the server on localhost port 8000 and log any errors
 	log.Println("Server started on :8000")

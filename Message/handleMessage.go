@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func HandleMessages1() {
+func HandleUnicastProducerMessage() {
 	for {
 		msg := <-Channel.Broadcast
 
@@ -120,6 +120,22 @@ func HandleUnicastConsumerMessage() {
 	}
 }
 
+func DeleteKeyCacheIfNotConnected() {
+	for {
+		time.Sleep(2 * time.Second)
+		log.Printf("Triggering the Delete key if not connected")
+		sessions := Cache.LGet("connection", KafkaEvent.TopicName)
+		for _, session := range sessions {
+			_, isKey := Channel.Clients[session]
+			if !isKey {
+				Cache.LRemove("connection", KafkaEvent.TopicName, session)
+				log.Printf("Removed the key has the connection expired:%s", session)
+			}
+		}
+
+	}
+}
+
 func FindAndSendTheUndelivedChat(ws *websocket.Conn, username string) {
 	chats, err := Database.ChatRepo().GetChatDelivered(username, false)
 	if err != nil {
@@ -134,6 +150,7 @@ func FindAndSendTheUndelivedChat(ws *websocket.Conn, username string) {
 			Message:      chat.Message,
 			ToUser:       username,
 			Type:         "message",
+			ChatID:       chat.ID,
 		})
 
 		if err != nil {
