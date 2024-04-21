@@ -53,6 +53,15 @@ curl --location --request GET 'http://localhost:8000/api/user/v1/create' \
 }'
 ```
 
+Create another user with username
+```
+curl --location --request GET 'http://localhost:8000/api/user/v1/create' \
+--header 'Content-Type: application/json' \
+--data '{
+    "username": "kumar"
+}'
+```
+
 Create a jwt token from python
 ```
 python3 jwt.py kiran
@@ -66,7 +75,7 @@ JWT Token: eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ1c2VybmFtZSI6ICJzYW0iLCAi
 ### In post man create a webscoket connection 
 
 #### Add token to the request
-![Alt text](image/image2.png)
+![Alt text](image/image3.png)
 
 #### Create a api call
 ![Alt text](image/image1.png)

@@ -80,7 +80,6 @@ func LFind(prifix string, key string, value string) bool {
 	log.Printf("Found list of entry for key:%s list:%+v", key, list)
 
 	for _, v := range list {
-		log.Printf("found value:%s in v:%s", value, v)
 		if v == value {
 			log.Printf("found value:%s in key:%s", value, key)
 			return true

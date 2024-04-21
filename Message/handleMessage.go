@@ -49,7 +49,7 @@ func HandleUnicastProducerMessage() {
 		for _, server := range servers {
 
 			if Cache.LFind("connection", server, msg.ToUser) {
-				log.Printf("send kafka message\n")
+				log.Printf("send kafka message to server:%s", server)
 				jsonBytes, err := json.Marshal(msg)
 				KafkaEvent.ProduceMessage(server, []byte(string(jsonBytes)), nil)
 				if err != nil {
@@ -75,21 +75,12 @@ func HandleUnicastConsumerMessage() {
 			FromUser.WriteJSON(msg)
 		}
 
-		chat := Model.Chat{
-			Message:   msg.Message,
-			FromUser:  msg.FromUsername,
-			Username:  msg.ToUser,
-			Time:      time.Now(),
-			Read:      false,
-			Delivered: false,
-		}
-
-		chat, err = Database.ChatRepo().GetChat(msg.ChatID)
+		chat, err := Database.ChatRepo().GetChat(msg.ChatID)
 
 		if err != nil {
 			log.Println("error while writing to database:", err)
 		} else {
-			log.Println("Sucessfully while fetching the user user:", msg.FromUsername)
+			log.Printf("Sucessfully while fetching the user chat:%+v", chat)
 		}
 
 		// Send it out to every client that is currently connected
@@ -123,7 +114,6 @@ func HandleUnicastConsumerMessage() {
 func DeleteKeyCacheIfNotConnected() {
 	for {
 		time.Sleep(2 * time.Second)
-		log.Printf("Triggering the Delete key if not connected")
 		sessions := Cache.LGet("connection", KafkaEvent.TopicName)
 		for _, session := range sessions {
 			_, isKey := Channel.Clients[session]
