@@ -21,6 +21,21 @@ func (*chatRepo) CreateChat(chat Model.Chat) (Model.Chat, error) {
 	return chat, nil
 }
 
+func (*chatRepo) GetChat(ID uint) (Model.Chat, error) {
+	// Query to retrieve user by name or email
+	var chat Model.Chat
+	if err := DBConnection.First(&chat).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return Model.Chat{}, errors.New("no record found")
+		} else {
+			return Model.Chat{}, err
+		}
+	}
+
+	log.Printf("Chats found for username:%s\n", chat.Username)
+	return chat, nil
+}
+
 func (*chatRepo) GetChatDelivered(username string, delivered bool) ([]Model.Chat, error) {
 	// Query to retrieve user by name or email
 	var chats []Model.Chat
@@ -32,7 +47,7 @@ func (*chatRepo) GetChatDelivered(username string, delivered bool) ([]Model.Chat
 		}
 	}
 
-	log.Printf("Chats found for username:{}\n", username)
+	log.Printf("Chats found for username:%s\n", username)
 	return chats, nil
 }
 
@@ -44,6 +59,6 @@ func (*chatRepo) UpdateChat(chat Model.Chat) (Model.Chat, error) {
 		return chat, err
 	}
 
-	log.Printf("Updated the chat sucessfully for ID:{}, username:{}\n", chat.ID, chat.Username)
+	log.Printf("Updated the chat sucessfully for ID:%d, username:%s\n", chat.ID, chat.Username)
 	return chat, nil
 }

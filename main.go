@@ -6,6 +6,7 @@ import (
 	"messaging/Message"
 	"messaging/Middleware"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -35,12 +36,14 @@ func main() {
 	serverMux.Handle("/ws", Middleware.JwtMiddleware(http.HandlerFunc((Controller.HandleConnections))))
 
 	// Start listening for incoming chat messages
-	go Message.HandleMessages()
+	go Message.HandleMessages1()
+	go Message.HandleUnicastConsumerMessage()
 
 	// Start the server on localhost port 8000 and log any errors
 	log.Println("Server started on :8000")
-	err := http.ListenAndServe(":8000", serverMux)
+	err := http.ListenAndServe(":"+os.Getenv("SERVER_PORT"), serverMux)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
+
 }

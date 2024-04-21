@@ -3,12 +3,14 @@ package Controller
 import (
 	"encoding/json"
 	"log"
+	"messaging/Cache"
 	"messaging/Channel"
 	"messaging/Database"
 	"messaging/Message"
 	"messaging/Model"
 	"messaging/Utils"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/websocket"
 )
@@ -44,6 +46,12 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("User %s connected", username)
 
+	Cache.LRemove("connection", os.Getenv("TOPIC_NAME"), username)
+	log.Printf("removed existing entry in redis for username:%s in server:%s", username, os.Getenv("TOPIC_NAME"))
+
+	Cache.LPush("connection", os.Getenv("TOPIC_NAME"), username)
+	log.Printf("created a entry in redis for username:%s in server:%s", username, os.Getenv("TOPIC_NAME"))
+
 	Message.FindAndSendTheUndelivedChat(ws, username)
 
 	for {
@@ -55,6 +63,8 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 		}
 		if err != nil {
 			log.Printf("error: %v", err)
+			Cache.LRemove("connection", os.Getenv("TOPIC_NAME"), username)
+			log.Printf("Removed the entry in redis for username:%s in server:%s", username, os.Getenv("TOPIC_NAME"))
 			Channel.ClientsMutex.Lock()
 			delete(Channel.Clients, username)
 			Channel.ClientsMutex.Unlock()
@@ -62,6 +72,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 		}
 		// Send the newly received message to the broadcast channel
 		msg.FromUsername = username
+
 		Channel.Broadcast <- msg
 	}
 }
