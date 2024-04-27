@@ -28,7 +28,7 @@ func init() {
 	log.Printf("push to redis sucessfully")
 
 	config := &kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092",
+		"bootstrap.servers": KafkaBrokers,
 		"group.id":          "my-consumer-group",
 		"auto.offset.reset": "earliest",
 	}

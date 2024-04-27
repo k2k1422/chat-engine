@@ -36,45 +36,43 @@ services:
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
     depends_on:
       - zookeeper
-  # web1:
-  #   build:
-  #     context: .
-  #     dockerfile: ./docker
-  #   ports:
-  #     - "8000:8000"
-  #   depends_on:
-  #     - postgres
-  #     - redis
-  #     - kafka
-  #   environment:
-  #     MY_SECRET_KEY: f1152577d55a836ea26843b0433059ed9ba1add93e0e49767890c2c46852b8d8
-  #     BOOTSTRAP_SERVER: kafka:9092
-  #     TOPIC_NAME: server1
-  #     REDIS_SERVER: redis:8802
-  #     REDIS_PASSWORD: password
-  #   volumes:
-  #     - ./app:/app
-  # web2:
-  #   build:
-  #     context: .
-  #     dockerfile: ./docker
-  #   ports:
-  #     - "8001:8000"
-  #   depends_on:
-  #     - postgres
-  #     - redis
-  #     - kafka
-  #   environment:
-  #     MY_SECRET_KEY: f1152577d55a836ea26843b0433059ed9ba1add93e0e49767890c2c46852b8d8
-  #     BOOTSTRAP_SERVER: kafka:9092
-  #     TOPIC_NAME: server2
-  #     REDIS_SERVER: redis:8802
-  #     REDIS_PASSWORD: password
-  #   volumes:
-  #     - ./app:/app
+  web1:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "8001:8080"
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    environment:
+      SECRET_CODE: f1152577d55a836ea26843b0433059ed9ba1add93e0e49767890c2c46852b8d8
+      BOOTSTRAP_SERVER: kafka:9092
+      TOPIC_NAME: server1
+      REDIS_SERVER: 192.168.31.206:8802
+      REDIS_PASSWORD: password
+      SERVER_PORT: 8080
+  web2:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "8002:8080"
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    environment:
+      SECRET_CODE: f1152577d55a836ea26843b0433059ed9ba1add93e0e49767890c2c46852b8d8
+      BOOTSTRAP_SERVER: kafka:9092
+      TOPIC_NAME: server2
+      REDIS_SERVER: 192.168.31.206:8802
+      REDIS_PASSWORD: password
+      SERVER_PORT: 8080
 
 volumes:
   postgres_data:

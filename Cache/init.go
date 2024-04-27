@@ -19,6 +19,8 @@ func init() {
 		DB:       0,                           // Use default DB
 	})
 
+	log.Printf("redis:%s, password:%s", os.Getenv("REDIS_SERVER"), os.Getenv("REDIS_PASSWORD"))
+
 	_, err := Rdb.Ping(context.Background()).Result()
 	if err != nil {
 		fmt.Println("Error pinging Redis:", err)
