@@ -47,10 +47,10 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 	log.Printf("User %s connected", username)
 
 	Cache.LRemove("connection", os.Getenv("TOPIC_NAME"), username)
-	log.Printf("removed existing entry in redis for username:%s in server:%s", username, os.Getenv("TOPIC_NAME"))
+	log.Printf("Removed existing entry in redis for username:%s in server:%s", username, os.Getenv("TOPIC_NAME"))
 
 	Cache.LPush("connection", os.Getenv("TOPIC_NAME"), username)
-	log.Printf("created a entry in redis for username:%s in server:%s", username, os.Getenv("TOPIC_NAME"))
+	log.Printf("Created a entry in redis for username:%s in server:%s", username, os.Getenv("TOPIC_NAME"))
 
 	Message.FindAndSendTheUndelivedChat(ws, username)
 

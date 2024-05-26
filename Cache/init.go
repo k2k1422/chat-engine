@@ -34,7 +34,7 @@ func Set(prifix string, key string, value string) bool {
 	// Set a key in Redis with a value
 	err := Rdb.Set(context.Background(), prifix+":"+key, value, 0).Err()
 	if err != nil {
-		log.Println("Error setting key:", err)
+		log.Println("Redis Error setting key:", err)
 		return false
 	}
 	return true
@@ -44,7 +44,7 @@ func LPush(prifix string, key string, value string) error {
 	// Push the value to the end of the list
 	err := Rdb.RPush(context.Background(), key, value).Err()
 	if err != nil {
-		log.Println("Error pushing value:", err)
+		log.Println("Redis Error pushing value:", err)
 		return err
 	}
 	return nil
@@ -54,7 +54,7 @@ func LRemove(prifix string, key string, value string) bool {
 	// Remove the value from the list
 	_, err := Rdb.LRem(context.Background(), key, 0, value).Result()
 	if err != nil {
-		log.Println("Error deleting value from list:", err)
+		log.Println("Redis Error deleting value from list:", err)
 		return false
 	}
 	return true
@@ -63,7 +63,7 @@ func LRemove(prifix string, key string, value string) bool {
 func LGet(prifix string, key string) []string {
 	list, err := Rdb.LRange(context.Background(), key, 0, -1).Result()
 	if err != nil {
-		log.Println("Error retrieving list:", err)
+		log.Println("Redis Error retrieving list:", err)
 		return []string{}
 	}
 	return list
@@ -78,11 +78,11 @@ func LFind(prifix string, key string, value string) bool {
 		return false
 	}
 
-	log.Printf("Found list of entry for key:%s list:%+v", key, list)
+	log.Printf("Redis Found list of entry for key:%s, list:%+v", key, list)
 
 	for _, v := range list {
 		if v == value {
-			log.Printf("found value:%s in key:%s", value, key)
+			log.Printf("Redis found value:%s in key:%s", value, key)
 			return true
 		}
 	}
