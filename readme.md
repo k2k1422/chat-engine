@@ -5,6 +5,8 @@ The Chat Engine project is designed to facilitate multiple WebSocket connections
 
 
 ## Outline of Capabilities
+This is a micro service which is purly to handle web socket connection. It has minimum capability apart from that, JWT auth, a api call to create user (it can be stoped later, and other service can create later).
+
 1. WebSocket Connection Management: Maintains multiple WebSocket connections for users, allowing for real-time communication.
 2. Scalability: Designed to scale horizontally, enabling deployment across multiple instances to handle increased traffic and users.
 3. JWT Authentication: Implements basic JWT (JSON Web Token) authentication for user verification. Additionally, includes a standalone Python script for token generation, ensuring secure communication with a shared secret key.
@@ -20,6 +22,28 @@ WebSocket Connection Manager: Manages WebSocket connections for users, facilitat
 2. User Management Service: Provides functionality to create and manage user accounts via a RESTful API.
 3. Messaging Service: Facilitates communication between users through WebSocket connections, utilizing Kafka for inter-service communication.
 4. Kafka Message Broker: Serves as a centralized message broker, enabling seamless communication between microservices. Each service creates and listens to topics to efficiently transmit messages.
+
+## System Design
+
+![Alt text](image/chatting_design.drawio.png)
+
+### Webscoket connection
+1. Client -> WebSocket Service: Request connection.
+2. WebSocket Service -> Authentication Service: Send JWT token.
+3. Authentication Service -> WebSocket Service: Return validation result.
+4. WebSocket Service -> Redis: Register connection with the server name if token is valid.
+5. WebSocket Service -> Client: Confirm connection establishment. 
+6. Fetch all unread messages
+
+### Message sent
+1. Find the from user is valid, if valid then
+2. Find this user has connection to which all servers, a user can have multiple device connected to multiple server
+3. Send the kafka messages to those servers which have the users connection
+4. Recive the kafka messages in services
+5. Find the web socket connection in that server
+6. Send the messages to connection
+
+
 
 ## How to run (Standlone)
 
