@@ -2,10 +2,13 @@ package Database
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"messaging/Model"
+	"os"
 
-	"gorm.io/driver/sqlite"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -23,7 +26,11 @@ const (
 
 func init() {
 
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	// db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_NAME"), os.Getenv("DB_PASSWORD"))
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Error connecting to the database: %v", err)
 	}

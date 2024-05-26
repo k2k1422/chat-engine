@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"messaging/Cache"
 	"messaging/Channel"
 	"messaging/Model"
+	"messaging/Utils"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
@@ -19,6 +21,7 @@ var Producer *kafka.Producer
 var Consumer *kafka.Consumer
 
 func init() {
+	Utils.WaitForPort(os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), 30*time.Hour)
 	KafkaBrokers = os.Getenv("BOOTSTRAP_SERVER")
 	TopicName = os.Getenv("TOPIC_NAME")
 	fmt.Printf("the env:%s\n", KafkaBrokers)

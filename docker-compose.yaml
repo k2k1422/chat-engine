@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 
 services:
   postgres:
@@ -6,9 +6,9 @@ services:
     ports:
       - "8801:5432"
     environment:
-      POSTGRES_USER: fammy
+      POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: fammydb
+      POSTGRES_DB: message
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -53,9 +53,14 @@ services:
       SECRET_CODE: f1152577d55a836ea26843b0433059ed9ba1add93e0e49767890c2c46852b8d8
       BOOTSTRAP_SERVER: kafka:9092
       TOPIC_NAME: server1
-      REDIS_SERVER: 192.168.31.206:8802
+      REDIS_SERVER: redis:8802
       REDIS_PASSWORD: password
       SERVER_PORT: 8080
+      DB_HOST: postgres
+      DB_PORT: 8801
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: message
   web2:
     build:
       context: .
@@ -69,11 +74,22 @@ services:
     environment:
       SECRET_CODE: f1152577d55a836ea26843b0433059ed9ba1add93e0e49767890c2c46852b8d8
       BOOTSTRAP_SERVER: kafka:9092
-      TOPIC_NAME: server2
-      REDIS_SERVER: 192.168.31.206:8802
+      TOPIC_NAME: server1
+      REDIS_SERVER: redis:8802
       REDIS_PASSWORD: password
       SERVER_PORT: 8080
-
+      DB_HOST: postgres
+      DB_PORT: 8801
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: message
+  dummy:
+    image: alpine:latest  # You can use any lightweight image
+    command: tail -f /dev/null  # Keeps the container running indefinitely
+    depends_on:
+      - postgres
+      - redis
+      - kafka
 volumes:
   postgres_data:
     driver: local

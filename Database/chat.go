@@ -24,7 +24,7 @@ func (*chatRepo) CreateChat(chat Model.Chat) (Model.Chat, error) {
 func (*chatRepo) GetChat(ID uint) (Model.Chat, error) {
 	// Query to retrieve user by name or email
 	var chat Model.Chat
-	if err := DBConnection.Where("delivered = ?", ID).First(&chat).Error; err != nil {
+	if err := DBConnection.Where("id = ?", ID).First(&chat).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return Model.Chat{}, errors.New("no record found")
 		} else {
