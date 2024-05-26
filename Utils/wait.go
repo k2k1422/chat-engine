@@ -2,6 +2,7 @@ package Utils
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"time"
 )
@@ -11,7 +12,7 @@ func WaitForPort(host string, port string, timeout time.Duration) error {
 	for {
 		_, err := net.DialTimeout("tcp", fmt.Sprintf("%s:%s", host, port), time.Second)
 		if err == nil {
-			fmt.Printf("Port %s is available\n", port)
+			log.Printf("Port %s is available\n", port)
 			return nil
 		}
 		if time.Since(start) > timeout {

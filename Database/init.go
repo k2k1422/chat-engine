@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"messaging/Model"
+	"messaging/Utils"
 	"os"
+	"time"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"gorm.io/driver/postgres"
@@ -25,6 +27,8 @@ const (
 )
 
 func init() {
+
+	Utils.WaitForPort(os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), 30*time.Hour)
 
 	// db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",

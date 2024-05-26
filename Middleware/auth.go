@@ -3,6 +3,7 @@ package Middleware
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 
@@ -55,7 +56,7 @@ func JwtMiddleware(next http.Handler) http.Handler {
 
 		// Check if the token is valid
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			fmt.Println("Authorized user:", claims["username"])
+			log.Println("Authorized user:", claims["username"])
 			// If the token is valid, call the next handler
 			r = r.WithContext(context.WithValue(r.Context(), "username", claims["username"]))
 			next.ServeHTTP(w, r)

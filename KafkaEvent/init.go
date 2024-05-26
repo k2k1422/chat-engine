@@ -5,12 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 
 	"messaging/Cache"
 	"messaging/Channel"
 	"messaging/Model"
-	"messaging/Utils"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
@@ -21,10 +19,9 @@ var Producer *kafka.Producer
 var Consumer *kafka.Consumer
 
 func init() {
-	Utils.WaitForPort(os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), 30*time.Hour)
 	KafkaBrokers = os.Getenv("BOOTSTRAP_SERVER")
 	TopicName = os.Getenv("TOPIC_NAME")
-	fmt.Printf("the env:%s\n", KafkaBrokers)
+	log.Printf("the env:%s\n", KafkaBrokers)
 
 	Cache.LRemove("topic", "master", TopicName)
 	Cache.LPush("topic", "master", TopicName)
@@ -45,7 +42,7 @@ func init() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("consumber group created sucessfully")
+	log.Printf("consumber group created sucessfully")
 
 	err = Consumer.SubscribeTopics([]string{TopicName}, nil)
 	if err != nil {
@@ -101,7 +98,7 @@ func ConsumeMessage() {
 			var msg Model.Message
 			err := json.Unmarshal([]byte(e.Value), &msg)
 			if err != nil {
-				fmt.Println("Error:", err)
+				log.Println("Error:", err)
 				return
 			}
 			log.Printf("message unmarshal sucessfully")
