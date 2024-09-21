@@ -71,6 +71,7 @@ func ProduceMessage(topic string, message []byte, headers []kafka.Header) error 
 		Headers:        headers,
 	}, deliveryChan)
 	if err != nil {
+		log.Println("Failed to send the kafka message: %s", err)
 		return err
 	}
 

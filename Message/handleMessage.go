@@ -21,8 +21,7 @@ func HandleUnicastProducerMessage() {
 		if err != nil {
 			log.Println("user not found")
 			msg.Message = "User not found: " + msg.ToUser
-			FromUser := Channel.Clients[msg.FromUsername]
-			FromUser.WriteJSON(msg)
+			Channel.WriteJSONWS(msg, msg.FromUsername)
 		}
 
 		chat := Model.Chat{
@@ -48,7 +47,8 @@ func HandleUnicastProducerMessage() {
 		log.Printf("list of servers exist:%+v", servers)
 		for _, server := range servers {
 
-			if Cache.LFind("connection", server, msg.ToUser) {
+			// send kafka event to all the to user which is obiovs also send to from users
+			if Cache.LFind("connection", server, msg.ToUser) || Cache.LFind("connection", server, msg.FromUsername) {
 				log.Printf("send kafka message to server:%s", server)
 				jsonBytes, err := json.Marshal(msg)
 				err = KafkaEvent.ProduceMessage(server, []byte(string(jsonBytes)), nil)
@@ -57,6 +57,8 @@ func HandleUnicastProducerMessage() {
 				} else {
 					log.Printf("Sent message sucessfully to the server:%s", server)
 				}
+			} else {
+				log.Printf("For user:%s, there are no active web scoket connection", msg.ToUser)
 			}
 		}
 	}
@@ -71,8 +73,7 @@ func HandleUnicastConsumerMessage() {
 		if err != nil {
 			log.Println("user not found")
 			msg.Message = "User not found: " + msg.ToUser
-			FromUser := Channel.Clients[msg.FromUsername]
-			FromUser.WriteJSON(msg)
+			Channel.WriteJSONWS(msg, msg.FromUsername)
 		}
 
 		chat, err := Database.ChatRepo().GetChat(msg.ChatID)
@@ -84,16 +85,12 @@ func HandleUnicastConsumerMessage() {
 		}
 
 		// Send it out to every client that is currently connected
-		Channel.ClientsMutex.Lock()
-		toUser, isKey := Channel.Clients[msg.ToUser]
+		_, isKey := Channel.Clients[msg.ToUser]
 		if isKey {
-			err := toUser.WriteJSON(msg)
+			err := Channel.WriteJSONWS(msg, msg.ToUser)
 			if err != nil {
 				log.Printf("error: %v", err)
 				log.Println("Connection has been closed for user's web scoket:", msg.ToUser)
-
-				// If an error occurs while writing, close the connection
-				toUser.Close()
 			} else {
 				// if message sent sucessfully the write into the database
 				chat.Delivered = true
@@ -107,7 +104,23 @@ func HandleUnicastConsumerMessage() {
 		} else {
 			log.Println("Not active connection to user:", msg.ToUser)
 		}
-		Channel.ClientsMutex.Unlock()
+
+		// send messages to self
+		_, isKey = Channel.Clients[msg.FromUsername]
+		if isKey {
+			err := Channel.WriteJSONWS(msg, msg.FromUsername)
+			if err != nil {
+				log.Printf("error: %v", err)
+				log.Println("Connection has been closed for user's web scoket:", msg.ToUser)
+			} else {
+
+				if err != nil {
+					log.Printf("Failed to update the chat:{}, err:{}", chat, err)
+				}
+			}
+		} else {
+			log.Println("Not active connection to user:", msg.ToUser)
+		}
 	}
 }
 
