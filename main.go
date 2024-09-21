@@ -41,7 +41,7 @@ func main() {
 	go Message.DeleteKeyCacheIfNotConnected()
 
 	// Start the server on localhost port 8000 and log any errors
-	log.Println("Server started on :8000")
+	log.Println("Server started on :", os.Getenv("SERVER_PORT"))
 	err := http.ListenAndServe(":"+os.Getenv("SERVER_PORT"), serverMux)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)

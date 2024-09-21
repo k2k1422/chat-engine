@@ -56,7 +56,7 @@ func init() {
 		return
 	}
 
-	fmt.Printf("producer group created sucessfully")
+	log.Printf("producer group created sucessfully")
 
 	go ConsumeMessage()
 
