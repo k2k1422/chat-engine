@@ -85,29 +85,45 @@ func ProduceMessage(topic string, message []byte, headers []kafka.Header) error 
 }
 
 func ConsumeMessage() {
-	run := true
-	for run {
-		ev := Consumer.Poll(1000)
-		if ev == nil {
-			continue
+	for {
+
+		record, err := Consumer.ReadMessage(-1)
+		if err == nil {
+			log.Printf("Received message: %s: %s\n", record.TopicPartition, string(record.Value))
+		} else {
+			// Handle the error and continue
+			log.Printf("Consumer error: %v (%v)\n", err, record)
+		}
+		var msg Model.Message
+		err = json.Unmarshal([]byte(record.Value), &msg)
+		if err != nil {
+			log.Println("Error:", err)
+			return
 		}
 
-		switch e := ev.(type) {
-		case *kafka.Message:
-			log.Printf("Received message on topic %s: %s\n", *e.TopicPartition.Topic, string(e.Value))
-			var msg Model.Message
-			err := json.Unmarshal([]byte(e.Value), &msg)
-			if err != nil {
-				log.Println("Error:", err)
-				return
-			}
-			log.Printf("message unmarshal sucessfully")
-			Channel.ConsumerUnicast <- msg
-			log.Printf("message sent sucessfully to the unicast channel")
-		case kafka.Error:
-			fmt.Fprintf(os.Stderr, "Error: %v\n", e)
-			run = false
-		}
+		Channel.ConsumerUnicast <- msg
+
+		// ev := Consumer.Poll(1000)
+		// if ev == nil {
+		// 	continue
+		// }
+
+		// switch e := ev.(type) {
+		// case *kafka.Message:
+		// 	log.Printf("Received message on topic %s: %s\n", *e.TopicPartition.Topic, string(e.Value))
+		// 	var msg Model.Message
+		// 	err := json.Unmarshal([]byte(e.Value), &msg)
+		// 	if err != nil {
+		// 		log.Println("Error:", err)
+		// 		return
+		// 	}
+		// 	log.Printf("message unmarshal sucessfully")
+		// 	Channel.ConsumerUnicast <- msg
+		// 	log.Printf("message sent sucessfully to the unicast channel")
+		// case kafka.Error:
+		// 	fmt.Fprintf(os.Stderr, "Error: %v\n", e)
+		// 	run = false
+		// }
 
 	}
 }

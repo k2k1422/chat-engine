@@ -73,7 +73,9 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 		// Send the newly received message to the broadcast channel
 		msg.FromUsername = username
 
+		log.Printf("Message sending to the channel", msg)
 		Channel.Broadcast <- msg
+		log.Printf("Message sent to the channel", msg)
 	}
 }
 

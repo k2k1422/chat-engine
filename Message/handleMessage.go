@@ -51,7 +51,7 @@ func HandleUnicastProducerMessage() {
 			if Cache.LFind("connection", server, msg.ToUser) {
 				log.Printf("send kafka message to server:%s", server)
 				jsonBytes, err := json.Marshal(msg)
-				KafkaEvent.ProduceMessage(server, []byte(string(jsonBytes)), nil)
+				err = KafkaEvent.ProduceMessage(server, []byte(string(jsonBytes)), nil)
 				if err != nil {
 					log.Printf("Failed to send the message into the server:%s", server)
 				} else {
