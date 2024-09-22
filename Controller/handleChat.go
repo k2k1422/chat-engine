@@ -40,9 +40,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 	// Read username from query parameter
 
 	// Register the WebSocket connection with the username
-	Channel.ClientsMutex.Lock()
-	Channel.Clients[username] = ws
-	Channel.ClientsMutex.Unlock()
+	Channel.AddWS(ws, username)
 
 	log.Printf("User %s connected", username)
 
@@ -58,24 +56,22 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 		var msg Model.Message
 		// Read in a new message as JSON and map it to a Message object
 		err := ws.ReadJSON(&msg)
-		if err := Utils.Validate.Struct(msg); err != nil {
+		if err1 := Utils.Validate.Struct(msg); err != nil || err1 != nil {
 			log.Printf("Validation failed for the web scoket message: %v", err)
-		}
-		if err != nil {
 			log.Printf("error: %v", err)
-			Cache.LRemove("connection", os.Getenv("TOPIC_NAME"), username)
-			log.Printf("Removed the entry in redis for username:%s in server:%s", username, os.Getenv("TOPIC_NAME"))
-			Channel.ClientsMutex.Lock()
-			delete(Channel.Clients, username)
-			Channel.ClientsMutex.Unlock()
+			Channel.RemoveWS(ws, username)
+
+			// remove cache if it dosen't have the connection
+			if !Channel.HasWS(username) {
+				Cache.LRemove("connection", os.Getenv("TOPIC_NAME"), username)
+				log.Printf("Removed the entry in redis for username:%s in server:%s", username, os.Getenv("TOPIC_NAME"))
+			}
 			break
 		}
 		// Send the newly received message to the broadcast channel
 		msg.FromUsername = username
 
-		log.Printf("Message sending to the channel", msg)
 		Channel.Broadcast <- msg
-		log.Printf("Message sent to the channel", msg)
 	}
 }
 

@@ -78,7 +78,7 @@ func LFind(prifix string, key string, value string) bool {
 		return false
 	}
 
-	log.Printf("Redis Found list of entry for key:%s, list:%+v", key, list)
+	log.Printf("Redis list of entry for key:%s, list:%+v", key, list)
 
 	for _, v := range list {
 		if v == value {
@@ -86,5 +86,6 @@ func LFind(prifix string, key string, value string) bool {
 			return true
 		}
 	}
+	log.Printf("Redis not found value:%s in key:%s", value, key)
 	return false
 }

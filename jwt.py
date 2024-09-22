@@ -5,6 +5,8 @@ import hmac
 import base64
 from datetime import datetime, timedelta
 
+SECRET_KEY = 'f1152577d55a836ea26843b0433059ed9ba1add93e0e49767890c2c46852b8d8'
+
 def base64url_encode(data):
     encoded = base64.urlsafe_b64encode(data)
     return encoded.decode('utf-8').rstrip('=')
@@ -27,7 +29,7 @@ def create_jwt(username, secret_key):
 def main():
     parser = argparse.ArgumentParser(description='Generate JWT token with custom values.')
     parser.add_argument('username', type=str, help='Username')
-    parser.add_argument('--secret', type=str, default='f1152577d55a836ea26843b0433059ed9ba1add93e0e49767890c2c46852b8d8', help='Secret key for signing the token')
+    parser.add_argument('--secret', type=str, default=SECRET_KEY, help='Secret key for signing the token')
 
     args = parser.parse_args()
 
